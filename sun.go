@@ -1,20 +1,31 @@
 
-// Package sun returns the altitude of the Sun for any time and location i.e
-// longitude and latitude of observer position (geolocation)
-// Can be useful for estimating sky brightness around sunrise/sunset.
+// Package sun returns the altitude of the Sun for any time and location.
 //
-// Refer to http://en.wikipedia.org/wiki/Declination_ofTheSun using julian date
+// Location is supplied as decimal longitude and latitude of the observer.
+//
+// This package could be useful for estimating the sky brightness around sunrise/sunset.
+//
+// Refer to https://en.wikipedia.org/wiki/Position_of_the_Sun#Declination_of_the_Sun_as_seen_from_Earth
+// 
 // Steps:
+//
 // 1. Calculate the ecliptic coordinates of the sun
+//
 // 2. Calculate equatorial coordinates
+//
 // 3. Convert easily to horizontal coordinates
+//
 // 4. From which we get the ALTITUDE of the sun as desired
 //
+//
 // CREDITS:
+//
 // Major portion from https://github.com/giraj/sun-altitude.js/
+//
 // Licence : none
 //
 // Some jde and utility portions based on https://github.com/soniakeys/meeus
+//
 // License MIT: http://www.opensource.org/licenses/MIT
 //
 package sun
@@ -29,7 +40,8 @@ const axialTilt float64 = 23.439
 // Altitude returns the altuide of the Sun above (+ve) or below (-ve) the horizon in degrees
 // Any time zone offset in the input parameter is ignored and the time is
 // treated as UTC. So time.Now() and time.Now().UTC() will give the same result.
-// Location must be specified in decimal degrees for latitude and longitude
+// Location must be specified in decimal degrees for latitude and longitude.
+//
 // Typical accuracy is around 0.1 degree
 //
 func Altitude(t time.Time, latitude float64, longitude float64) (altitude float64) {
@@ -75,9 +87,8 @@ func getDeclination(eclipticLong float64) float64 {
 func getLastJdMidnight(jd float64) float64 {
 	if jd >= math.Floor(jd)+0.5 {
 		return math.Floor(jd-1) + 0.5
-	} else {
-		return math.Floor(jd) + 0.5
 	}
+	return math.Floor(jd) + 0.5
 }
 
 func getUtHours(jd float64, lastJdMidnight float64) float64 {
