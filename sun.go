@@ -3,7 +3,7 @@
 // longitude and latitude of observer position (geolocation)
 // Can be useful for estimating sky brightness around sunrise/sunset.
 //
-// Refer to http://en.wikipedia.org/wiki/Declination_of_the_Sun using julian date
+// Refer to http://en.wikipedia.org/wiki/Declination_ofTheSun using julian date
 // Steps:
 // 1. Calculate the ecliptic coordinates of the sun
 // 2. Calculate equatorial coordinates
@@ -24,7 +24,7 @@ import (
 	"time"
 )
 
-const axial_tilt float64 = 23.439
+const axialTilt float64 = 23.439
 
 // SunAltitude returns the altuide of the Sun above (+ve) or below (-ve) the horizon in degrees
 // Any time zone offset in the input parameter is ignored and the time is
@@ -32,47 +32,47 @@ const axial_tilt float64 = 23.439
 // Location must be specified in decimal degrees for latitude and longitude
 // Typical accuracy is around 0.1 degree
 //
-func SunAltitude(t time.Time, latitude float64, longitude float64) (altitude float64) {
+func Altitude(t time.Time, latitude float64, longitude float64) (altitude float64) {
 	jd := timeToJD(t)
-	jdn := get_jdn(jd)
+	jdn := getJdn(jd)
 
 	l := between(0, 360, 280.460) + 0.9856474*jdn
 	g := between(0, 360, 357.528) + 0.9856003*jdn
 
-	ec_long := get_ecliptic_long(l, g)
-	r_asc := get_right_ascension(ec_long)
+	ecLong := getEclipticLong(l, g)
+	rAsc := getRightAscension(ecLong)
 
-	// make sure right_ascension is in same quadrant as ecliptic_long
-	for angleToQuadrant(ec_long) != angleToQuadrant(r_asc) {
-		if r_asc < ec_long {
-			r_asc += 90
+	// make sure rightAscension is in same quadrant as eclipticLong
+	for angleToQuadrant(ecLong) != angleToQuadrant(rAsc) {
+		if rAsc < ecLong {
+			rAsc += 90
 		} else {
-			r_asc += -90
+			rAsc += -90
 		}
 	}
-	dec := get_declination(ec_long)
-	ha := get_hour_angle(jd, longitude, r_asc)
-	return angle_asin(angle_sin(latitude)*angle_sin(dec) + angle_cos(latitude)*angle_cos(dec)*angle_cos(ha))
+	dec := getDeclination(ecLong)
+	ha := getHourAngle(jd, longitude, rAsc)
+	return angleAsin(angleSin(latitude)*angleSin(dec) + angleCos(latitude)*angleCos(dec)*angleCos(ha))
 }
 
-func get_ecliptic_long(l float64, g float64) float64 {
-	return l + 1.915*angle_sin(g) + 0.02*angle_sin(2.0*g)
+func getEclipticLong(l float64, g float64) float64 {
+	return l + 1.915*angleSin(g) + 0.02*angleSin(2.0*g)
 }
 
-func get_right_ascension(ecliptic_long float64) float64 {
-	return angle_atan(angle_cos(axial_tilt) * angle_tan(ecliptic_long))
+func getRightAscension(eclipticLong float64) float64 {
+	return angleAtan(angleCos(axialTilt) * angleTan(eclipticLong))
 }
 
 // +longitude; positive east
-func get_hour_angle(jd float64, longitude float64, right_ascension float64) float64 {
-	return between(0, 360, get_gst(jd)) + longitude - right_ascension
+func getHourAngle(jd float64, longitude float64, rightAscension float64) float64 {
+	return between(0, 360, getGst(jd)) + longitude - rightAscension
 }
 
-func get_declination(ecliptic_long float64) float64 {
-	return angle_asin(angle_sin(axial_tilt) * angle_sin(ecliptic_long))
+func getDeclination(eclipticLong float64) float64 {
+	return angleAsin(angleSin(axialTilt) * angleSin(eclipticLong))
 }
 
-func get_last_jd_midnight(jd float64) float64 {
+func getLastJdMidnight(jd float64) float64 {
 	if jd >= math.Floor(jd)+0.5 {
 		return math.Floor(jd-1) + 0.5
 	} else {
@@ -80,25 +80,25 @@ func get_last_jd_midnight(jd float64) float64 {
 	}
 }
 
-func get_ut_hours(jd float64, last_jd_midnight float64) float64 {
-	return 24 * (jd - last_jd_midnight)
+func getUtHours(jd float64, lastJdMidnight float64) float64 {
+	return 24 * (jd - lastJdMidnight)
 }
 
-func get_gst_hours(jdn_midnight float64, ut_hours float64) float64 {
-	gmst := 6.697374558 + 0.06570982441908*jdn_midnight + 1.00273790935*ut_hours
+func getGstHours(jdnMidnight float64, utHours float64) float64 {
+	gmst := 6.697374558 + 0.06570982441908*jdnMidnight + 1.00273790935*utHours
 	return between(0.0, 24.0, gmst)
 }
 
 // http:#aa.usno.navy.mil/faq/docs/GAST.php
 // julian date midnight is every .5 (half)
-func get_gst(jd float64) float64 {
+func getGst(jd float64) float64 {
 	// gst : greenwich mean sidereal time
-	jdm := get_last_jd_midnight(jd)
+	jdm := getLastJdMidnight(jd)
 	// gst -> local sidereal time done by adding or subtracting local longitude
 	// in hours (degrees / 15). If local position is east of greenwich, then
 	// add, else subtract.
 	// in degrees!
-	return 15 * get_gst_hours(get_jdn(jdm), get_ut_hours(jd, jdm))
+	return 15 * getGstHours(getJdn(jdm), getUtHours(jd, jdm))
 }
 
 // suppose max - min is the size of interval (one cycle)
@@ -129,34 +129,34 @@ func angleToQuadrant(angle float64) float64 {
 	return 4.
 }
 
-func to_radians(angle float64) float64 {
+func toRadians(angle float64) float64 {
 	return angle * math.Pi / 180.
 }
 
-func to_angle(rad float64) float64 {
+func toAngle(rad float64) float64 {
 	return rad * 180. / math.Pi
 }
 
-func angle_sin(x float64) float64 {
-	return math.Sin(to_radians(x))
+func angleSin(x float64) float64 {
+	return math.Sin(toRadians(x))
 }
 
-func angle_cos(x float64) float64 {
-	return math.Cos(to_radians(x))
+func angleCos(x float64) float64 {
+	return math.Cos(toRadians(x))
 }
 
-func angle_tan(x float64) float64 {
-	return math.Tan(to_radians(x))
+func angleTan(x float64) float64 {
+	return math.Tan(toRadians(x))
 }
 
-func angle_atan(x float64) float64 {
-	return to_angle(math.Atan(x))
+func angleAtan(x float64) float64 {
+	return toAngle(math.Atan(x))
 }
-func angle_asin(x float64) float64 {
-	return to_angle(math.Asin(x))
+func angleAsin(x float64) float64 {
+	return toAngle(math.Asin(x))
 }
 
-func get_jdn(jd float64) float64 {
+func getJdn(jd float64) float64 {
 	return jd - 2451545.0
 }
 
