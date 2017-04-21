@@ -26,7 +26,7 @@ import (
 
 const axialTilt float64 = 23.439
 
-// SunAltitude returns the altuide of the Sun above (+ve) or below (-ve) the horizon in degrees
+// Altitude returns the altuide of the Sun above (+ve) or below (-ve) the horizon in degrees
 // Any time zone offset in the input parameter is ignored and the time is
 // treated as UTC. So time.Now() and time.Now().UTC() will give the same result.
 // Location must be specified in decimal degrees for latitude and longitude
